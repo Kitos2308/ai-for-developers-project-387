@@ -1,0 +1,16 @@
+from fastapi import HTTPException, status
+
+
+class NotFoundException(HTTPException):
+    def __init__(self, detail: str = "Not found"):
+        super().__init__(status_code=status.HTTP_404_NOT_FOUND, detail=detail)
+
+
+class ConflictException(HTTPException):
+    def __init__(self, detail: str = "Conflict"):
+        super().__init__(status_code=status.HTTP_409_CONFLICT, detail=detail)
+
+
+class BusinessRuleException(HTTPException):
+    def __init__(self, detail: str = "Business rule violation"):
+        super().__init__(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=detail)
