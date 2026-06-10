@@ -1,0 +1,8 @@
+{
+	"/": [],
+	"/admin": [],
+	"/admin/bookings": [],
+	"/admin/event-types": [],
+	"/book": [],
+	"/book/[eventTypeId]": []
+}
