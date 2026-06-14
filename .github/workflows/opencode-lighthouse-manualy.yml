@@ -1,0 +1,104 @@
+name: Lighthouse Audit Manually
+
+on:
+  workflow_dispatch:
+
+jobs:
+  opencode:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      issues: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Lighthouse
+        run: npm install -g lighthouse
+
+      - name: Generate Lighthouse reports
+        run: |
+          mkdir -p lighthouse-reports
+
+          lighthouse https://ai-for-developers-project-386-1-w0hq.onrender.com \
+            --output html \
+            --output json \
+            --output-path lighthouse-reports/home \
+            --chrome-flags="--headless --no-sandbox"
+
+      - name: Analyze reports and create GitHub issue
+        uses: anomalyco/opencode/github@latest
+        env:
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+        with:
+          model: opencode/deepseek-v4-flash-free
+          prompt: |
+            Review all Lighthouse JSON reports found in:
+
+            lighthouse-reports/**/*.json
+
+            Create a GitHub Issue with title:
+
+            Lighthouse Audit - Run #${{ github.run_number }}
+
+            The issue should contain:
+
+            # Executive Summary
+
+            Summarize the overall health of the website.
+
+            # Scores
+
+            For each audited page provide:
+
+            - Performance
+            - Accessibility
+            - Best Practices
+            - SEO
+
+            # Core Web Vitals
+
+            Include when available:
+
+            - Largest Contentful Paint (LCP)
+            - Interaction to Next Paint (INP)
+            - Cumulative Layout Shift (CLS)
+
+            # Top Opportunities
+
+            List the highest-impact optimization opportunities.
+
+            # Diagnostics
+
+            Highlight warnings and potential regressions.
+
+            # Recommended Actions
+
+            Prioritize fixes by impact:
+            - High
+            - Medium
+            - Low
+
+            # Artifacts
+
+            Lighthouse reports are available in this workflow run:
+
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            Use markdown formatting.
+
+      - name: Upload Lighthouse artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports-${{ github.run_number }}
+          path: lighthouse-reports/
+          retention-days: 30
