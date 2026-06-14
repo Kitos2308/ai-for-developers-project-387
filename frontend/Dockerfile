@@ -1,8 +1,8 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
-COPY frontend/package.json frontend/package-lock.json ./
+COPY package.json package-lock.json ./
 RUN npm ci
-COPY frontend/ .
+COPY . ./
 RUN npm run build
 
 FROM node:20-alpine AS runner
@@ -11,7 +11,7 @@ RUN apk add --no-cache make
 
 WORKDIR /project
 COPY Makefile .
-COPY frontend ./frontend
+COPY . ./frontend
 COPY --from=builder /app/build ./frontend/build
 COPY --from=builder /app/.svelte-kit ./frontend/.svelte-kit
 

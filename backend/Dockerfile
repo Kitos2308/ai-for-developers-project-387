@@ -8,7 +8,7 @@ ENV POETRY_VERSION=2.1.2 \
 RUN pip install "poetry==$POETRY_VERSION"
 
 WORKDIR /app
-COPY backend/pyproject.toml backend/poetry.lock ./
+COPY pyproject.toml poetry.lock ./
 RUN poetry install --no-root --only main
 
 FROM python:3.12-slim AS runner
@@ -22,9 +22,9 @@ COPY --from=builder /app/.venv /app/.venv
 
 WORKDIR /project
 COPY Makefile .
-COPY backend ./backend
+COPY . ./backend
 
-COPY backend/entrypoint.sh ./backend/entrypoint.sh
+COPY entrypoint.sh ./backend/entrypoint.sh
 RUN chmod +x backend/entrypoint.sh
 
 EXPOSE 8000
